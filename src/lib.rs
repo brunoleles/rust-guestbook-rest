@@ -3,9 +3,6 @@ pub mod schema;
 
 use diesel::prelude::*;
 use dotenvy::dotenv;
-use module_guestbook::GuestbookModel;
-use schema::guestbooks;
-use serde::{Serialize, Deserialize};
 use std::env;
 
 pub fn establish_connection() -> SqliteConnection {
