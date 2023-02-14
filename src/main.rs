@@ -11,11 +11,6 @@ async fn ping() -> impl Responder {
     format!("pong")
 }
 
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {name}!")
-}
-
 #[get("/guestbook")]
 async fn get_guestbook() -> impl Responder {
     use rust_guestbook_rest::schema::guestbooks::dsl::*;
@@ -55,7 +50,6 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             //
             .service(ping)
-            .service(greet)
             //
             .service(get_guestbook)
             .service(post_guestbook)
