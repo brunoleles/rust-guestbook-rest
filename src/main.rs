@@ -12,7 +12,7 @@ async fn ping() -> impl Responder {
 }
 
 #[get("/guestbook")]
-async fn get_guestbook() -> impl Responder {
+async fn api_list_guestbooks() -> impl Responder {
     use rust_guestbook_rest::schema::guestbooks::dsl::*;
 
     let connection = &mut establish_connection();
@@ -26,12 +26,12 @@ async fn get_guestbook() -> impl Responder {
 }
 
 #[post("/guestbook")]
-async fn post_guestbook(request: Form<PostGuestbookRequest>) -> impl Responder {
+async fn api_post_guestbook(request: Form<PostGuestbookRequest>) -> impl Responder {
     format!("post guest! n: {}, m: {}", request.name, request.message)
 }
 
 #[delete("/guestbook")]
-async fn delete_guestbook(request: Form<DeleteGuestbookRequest>) -> impl Responder {
+async fn api_delete_guestbook(request: Form<DeleteGuestbookRequest>) -> impl Responder {
     format!("delete guest! {}", request.id)
 
     // let connection = &mut establish_connection();
@@ -51,9 +51,9 @@ async fn main() -> std::io::Result<()> {
             //
             .service(ping)
             //
-            .service(get_guestbook)
-            .service(post_guestbook)
-            .service(delete_guestbook)
+            .service(api_list_guestbooks)
+            .service(api_post_guestbook)
+            .service(api_delete_guestbook)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
