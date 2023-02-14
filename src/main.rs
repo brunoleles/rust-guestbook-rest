@@ -1,6 +1,6 @@
 use actix_web::{
     delete, get, middleware, post,
-    web::{self, Form, Json},
+    web::{Form, Json},
     App, HttpServer, Responder,
 };
 use diesel::prelude::*;
