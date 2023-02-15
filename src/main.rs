@@ -3,8 +3,10 @@ use actix_web::{
     web::{Form, Json},
     App, HttpServer, Responder,
 };
-use diesel::prelude::*;
-use rust_guestbook_rest::{establish_connection, module_guestbook::*};
+use diesel::{self, prelude::*};
+use rust_guestbook_rest::{
+    establish_connection, module_guestbook::*, ApiOk, ApiOkWithData,
+};
 
 #[get("/ping")]
 async fn ping() -> impl Responder {
@@ -22,24 +24,32 @@ async fn api_list_guestbooks() -> impl Responder {
         .load::<GuestbookModel>(connection)
         .expect("Error loading posts");
 
-    Json(results)
+    Json(ApiOkWithData::new(results))
 }
 
 #[post("/guestbook")]
 async fn api_post_guestbook(request: Form<PostGuestbookRequest>) -> impl Responder {
-    format!("post guest! n: {}, m: {}", request.name, request.message)
+    use rust_guestbook_rest::schema::guestbooks::dsl::*;
+
+    let connection = &mut establish_connection();
+    diesel::insert_into(guestbooks)
+        .values(&request.0)
+        .execute(connection)
+        .expect("Unable to create new guestbook");
+
+    Json(ApiOk::new())
 }
 
 #[delete("/guestbook")]
 async fn api_delete_guestbook(request: Form<DeleteGuestbookRequest>) -> impl Responder {
-    format!("delete guest! {}", request.id)
+    use rust_guestbook_rest::schema::guestbooks::dsl::*;
 
-    // let connection = &mut establish_connection();
-    // let result = diesel::delete(guestbooks.filter(id.eq(request.id)))
-    //     .execute(connection)
-    //     .expect("Unable to delete record");
+    let connection = &mut establish_connection();
+    diesel::delete(guestbooks.filter(id.eq(request.id)))
+        .execute(connection)
+        .expect("Unable to delete guestbook");
 
-    // result > 0
+    Json(ApiOk::new())
 }
 
 #[actix_web::main]
