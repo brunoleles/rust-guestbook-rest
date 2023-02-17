@@ -54,6 +54,8 @@ async fn api_delete_guestbook(request: Form<DeleteGuestbookRequest>) -> impl Res
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    initialize();
+
     HttpServer::new(move || {
         App::new()
             //
