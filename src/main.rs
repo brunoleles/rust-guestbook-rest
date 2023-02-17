@@ -4,9 +4,7 @@ use actix_web::{
     App, HttpServer, Responder,
 };
 use diesel::{self, prelude::*};
-use rust_guestbook_rest::{
-    establish_connection, module_guestbook::*, ApiOk, ApiOkWithData,
-};
+use rust_guestbook_rest::*;
 
 #[get("/ping")]
 async fn ping() -> impl Responder {
@@ -18,13 +16,15 @@ async fn api_list_guestbooks() -> impl Responder {
     use rust_guestbook_rest::schema::guestbooks::dsl::*;
 
     let connection = &mut establish_connection();
-    let results = guestbooks
+    let results: Vec<_> = guestbooks
         //.filter(published.eq(true))
         .limit(5)
         .load::<GuestbookModel>(connection)
         .expect("Error loading posts");
 
-    Json(ApiOkWithData::new(results))
+    Json(ApiOkWithData::new(transform_collection(results, |i| {
+        GuestbookApi::from(i)
+    })))
 }
 
 #[post("/guestbook")]
